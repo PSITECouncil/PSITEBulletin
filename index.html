@@ -1,1 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="Images/LOGOPSTIE.png">
+    <title>PSITE COUNCIL</title>
 
+    <style>
+        body {
+          display: flex;
+            background-image: url(Images/Background.png);
+            background-size: cover;
+            background-repeat: no-repeat;  
+            background-attachment: fixed;
+            overflow-x: hidden;
+            transition: background-position 0.5s ease;
+            font-family: Arial, sans-serif;
+            color: black;
+            user-select: none;
+            margin: 0;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }body.move-left {
+            background-position: left;
+        }
+
+        .icons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            padding: 40px;
+            transition: transform 0.5s ease;
+        }.icons.move-left {
+            transform: translateX(-350px);
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .panel {
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: 135px;
+            height: 135px;
+            display: flex;
+            justify-content: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-sizing: border-box;
+            overflow: hidden;
+        }.panel:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.3);
+        }.panel img {
+            width: 100%;
+            height: auto;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .background {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0.2;
+            z-index: -1;
+            user-select: none;
+            pointer-events: none;
+            transition: transform 0.5s ease;
+        }.background img {
+            width: 950px;
+            height: 950px;
+        }.background.move-left {
+            transform: translate(-50%, -50%) translateX(-350px);
+        }
+
+        .sidepanel {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 400px;
+            height: 100vh;
+            background-image: url(Images/Background.png);
+            backdrop-filter: blur(10px);
+            border-left: 2px solid black;
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+            box-shadow: -10px 0 25px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: right 0.6s ease;
+            z-index: 15;
+            padding: 30px;
+        }.sidepanel.open {
+            right: 0;
+        }.sidepanel h2 {
+            font-family: 'Brush Script MT', cursive;
+            font-size: 60px;
+            margin-top: -100px;
+            margin-bottom: 30px;
+            color: #222;
+        }.sidepanel input {
+            width: 80%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #555;
+            border-radius: 15px;
+            font-size: 16px;
+            background: white;
+        }.sidepanel button {
+            width: 85%;
+            padding: 12px;
+            margin-top: 15px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s ease;
+        }.sidepanel button:hover {
+            background: #111;
+        }.sidepanel a {
+            margin-top: 10px;
+            color: #333;
+            font-size: 14px;
+            text-decoration: none;
+            cursor: pointer;
+        }.sidepanel a:hover {
+            text-decoration: underline;
+        }
+
+
+        .rightbutton {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            width: 85px;
+            height: 85px;
+            background-image: url(Images/left.png);
+            background-size: cover;
+            background-position: center;
+            border: 2px solid black;
+            border-radius: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: right 0.5s ease, transform 0.3s ease, background-color 0.3s ease;
+            z-index: 20;
+        }.rightbutton:hover {
+            transform: translateY(-50%) scale(1.1);
+            background-color: rgba(200, 200, 200, 0.6);
+        }.rightbutton.move-left {
+            right: 420px;
+        }.rightbutton.opened {
+            background-image: url(Images/right.png);
+        }
+        #message {
+            margin-top: 10px;
+            font-weight: bold;
+            color: red;
+            text-align: center;
+        }
+        #resetModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 30;
+        }
+        #resetModal .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            width: 300px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
+        }
+        #resetModal input {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 1px solid #aaa;
+        }
+        #resetModal button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            background: #333;
+            color: white;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        #resetModal button:hover {
+            background: #111;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+            
+        @media (max-width: 480px) {
+                #resetModal .modal-content {
+                    width: 90%;
+                    padding: 20px;
+                }
+                #resetModal input {
+                    font-size: 14px;
+                }
+                #resetModal button {
+                    font-size: 14px;
+                }
+        }
+
+
+        @media (max-width: 768px) {
+            .icons {
+                gap: 20px;
+                padding: 20px;
+            }
+            .row {
+                gap: 15px;
+            }
+            .panel {
+                width: 90px;
+                height: 90px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .icons {
+                gap: 15px;
+                padding: 10px;
+            }
+            .row {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .panel {
+                width: 70px;
+                height: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="icons" id="icons">
+        <div class="row">
+            <div class="panel"><img src="Images/Icon.png" alt="Icon 1"></div>
+        </div>
+        <div class="row">
+            <div class="panel"><img src="Images/Icon.png" alt="Icon 2"></div>
+            <div class="panel"><img src="Images/Icon.png" alt="Icon 2"></div>
+            <div class="panel"><img src="Images/Icon.png" alt="Icon 2"></div>
+        </div>
+        <div class="row">
+            <div class="panel"><img src="Images/Icon.png" alt="Icon 3"></div>
+            <div class="panel"><img src="Images/Icon.png" alt="Icon 3"></div>
+            <div class="panel"><img src="Images/Icon.png" alt="Icon 3"></div>
+            <div class="panel"><img src="Images/Icon.png" alt="Icon 3"></div>
+            <div class="panel"><img src="Images/Icon.png" alt="Icon 3"></div>
+        </div>
+        <div class="row">
+            <div class="panel"><img src="Images/Icon.png" alt="Icon 1"></div>
+            <div class="panel"><img src="Images/Icon.png" alt="Icon 1"></div>
+            <div class="panel"><img src="Images/Icon.png" alt="Icon 1"></div>
+        </div>
+    </div>
+    
+    <div class="background" id="bglogo">
+        <img src="Images/LOGOPSTIE.png" alt="LOGO">
+    </div>
+
+    <div class="sidepanel" id="sidePanel">
+        <h2>PSITE Login</h2>
+        <input type="text" id="username" placeholder="Username" required />
+        <input type="password" id="password" placeholder="Password" required />
+        <a onclick="openResetModal()">Forgot Password</a>
+        <button onclick="manualLogin()">Sign in</button>
+        <button style="background: gray; margin-top: 10px;" onclick="registerUser()">Sign Up</button>
+        <p id="message"><!--Message here--></p>
+    </div>
+
+    <div class="rightbutton" id="toggleBtn"><!--Toggle to left & Right--></div>
+
+    <div id="resetModal">
+    <div class="modal-content">
+        <h3>Reset Password</h3>
+
+        <input type="text" id="resetUsername" placeholder="Enter your username" />
+        <input type="password" id="newPassword" placeholder="Enter new password" />
+
+        <button onclick="resetPassword()">Reset</button>
+        <button style="background: gray;" onclick="closeResetModal()">Cancel</button>
+
+        <p id="resetMessage" style="color: red; margin-top: 10px;"></p>
+    </div>
+</div>
+</body>
+
+<!--Toggle-->
+<script>
+    const toggleBtn = document.getElementById("toggleBtn");
+    const sidePanel = document.getElementById("sidePanel");
+    const icons = document.getElementById("icons");
+    const bglogo = document.getElementById("bglogo");
+    const body = document.body;
+
+    let isOpen = false;
+
+    toggleBtn.addEventListener("click", function () {
+        isOpen = !isOpen;
+
+        if (isOpen) {
+            sidePanel.classList.add("open");
+            toggleBtn.classList.add("move-left");
+            toggleBtn.classList.add("opened");
+            icons.classList.add("move-left");
+            bglogo.classList.add("move-left");
+            body.classList.add("move-left");
+        } else {
+            sidePanel.classList.remove("open");
+            toggleBtn.classList.remove("move-left");
+            toggleBtn.classList.remove("opened");
+            icons.classList.remove("move-left");
+            bglogo.classList.remove("move-left");
+            body.classList.remove("move-left");
+        }
+    });
+</script>
+
+
+<!--Sign up and sign in-->
+<script>
+
+    const defaultAdmins = [
+        { username: "Lou", password: "abcd", role: "admin" },
+        { username: "Zedrick", password: "abcd", role: "admin" },
+        { username: "Rolle", password: "abcd", role: "admin" },
+        { username: "Nat", password: "abcd", role: "admin" }
+    ];
+
+    function loadUsers() {
+        const savedUsers = localStorage.getItem("users");
+
+        if (!savedUsers) {
+            localStorage.setItem("users", JSON.stringify(defaultAdmins));
+            return defaultAdmins;
+        }
+
+        let parsed;
+
+        try {
+            parsed = JSON.parse(savedUsers);
+        } catch (e) {
+           
+            localStorage.setItem("users", JSON.stringify(defaultAdmins));
+            return defaultAdmins;
+        }
+
+       
+        if (!Array.isArray(parsed)) {
+            localStorage.setItem("users", JSON.stringify(defaultAdmins));
+            return defaultAdmins;
+        }
+
+        return parsed;
+    }
+
+
+    function saveUsers(users) {
+        localStorage.setItem("users", JSON.stringify(users));
+    }
+
+
+    function registerUser() {
+        let users = loadUsers();
+
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const message = document.getElementById("message");
+
+        if (username === "" || password === "") {
+            message.innerText = "Please fill out all fields.";
+            return;
+        }
+
+        
+        const exists = users.some(u => u.username.toLowerCase() === username.toLowerCase());
+
+        if (exists) {
+            message.innerText = "Username already taken.";
+            return;
+        }
+
+    
+        users.push({
+            username: username,
+            password: password,
+            role: "user"
+        });
+
+        saveUsers(users);
+
+        message.style.color = "green";
+        message.innerText = "created successfully!";
+
+
+        setTimeout(() => {
+            window.location.href = "Pages/Homepage.html";
+        }, 1200);
+    }
+
+
+    function manualLogin() {
+        let users = loadUsers();
+
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const message = document.getElementById("message");
+
+        const user = users.find(
+            u => u.username.toLowerCase() === username.toLowerCase() && u.password === password
+        );
+
+        if (!user) {
+            message.innerText = "Invalid username or password.";
+            return;
+        }
+
+        
+        localStorage.setItem("currentUser", JSON.stringify(user));
+
+        message.style.color = "green";
+        message.innerText = "Login successful!";
+
+        
+        setTimeout(() => {
+            if (user.role === "admin") {
+                window.location.href = "AdminPages/AdminHome.html";
+            } else {
+                window.location.href = "Pages/Homepage.html";
+            }
+        }, 1000);
+    }
+</script>
+
+<!--Reset and Open-->
+<script>
+    const resetModal = document.getElementById("resetModal");
+    const resetUsernameInput = document.getElementById("resetUsername");
+    const newPasswordInput = document.getElementById("newPassword");
+    const resetMessage = document.getElementById("resetMessage");
+
+    window.openResetModal = function() {
+        resetModal.style.display = "flex";
+    };
+
+    window.closeResetModal = function() {
+        resetModal.style.display = "none";
+        resetMessage.innerText = "";
+        resetUsernameInput.value = "";
+        newPasswordInput.value = "";
+    };
+
+    window.resetPassword = function() {
+        const username = resetUsernameInput.value.trim();
+        const newPassword = newPasswordInput.value.trim();
+
+    if (!username || !newPassword) {
+        resetMessage.style.color = "red";
+        resetMessage.innerText = "Please fill in all fields.";
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users")) || [];
+    const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+
+    if (!user) {
+        resetMessage.style.color = "red";
+        resetMessage.innerText = "Username not found.";
+        return;
+    }
+    user.password = newPassword;
+
+    
+    localStorage.setItem("users", JSON.stringify(users));
+
+    resetMessage.style.color = "green";
+    resetMessage.innerText = "Password reset successfully!";
+
+    setTimeout(() => {
+        closeResetModal();
+    }, 1200);
+};
+
+</script>
+</html>
